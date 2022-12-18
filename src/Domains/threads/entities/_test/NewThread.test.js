@@ -16,6 +16,7 @@ describe('a NewThread entities', () => {
     const payload = {
       title: 123,
       body: true,
+      userId: {},
     };
 
     // Action and Assert
@@ -27,13 +28,15 @@ describe('a NewThread entities', () => {
     const payload = {
       title: 'dicoding',
       body: 'Dicoding Indonesia',
+      userId: 'user-1',
     };
 
     // Action
-    const { title, body } = new NewThread(payload);
+    const { title, body, userId } = new NewThread(payload);
 
     // Assert
     expect(title).toEqual(payload.title);
     expect(body).toEqual(payload.body);
+    expect(userId).toEqual(payload.userId);
   });
 });
