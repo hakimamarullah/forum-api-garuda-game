@@ -53,6 +53,26 @@ class CommentRepositoryPostgres extends CommentRepository {
       throw new NotFoundError('Thread atau comment tidak ditemukan');
     }
   }
+
+  async addCommentReply(comment) {
+    const id = `comment-${this._idGenerator()}`;
+    const {
+      threadId, commentId, userId, content,
+    } = comment;
+
+    const query = {
+      text: 'INSERT INTO comments(id, content, owner, "threadId", "parent_id") VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
+      values: [id, content, userId, threadId, commentId],
+    };
+
+    return this._pool.query(query)
+      .then((res) => res.rows[0])
+      .catch((err) => {
+        if (err.code === '23503') {
+          throw new NotFoundError('Thread tidak ditemukan');
+        }
+      });
+  }
 }
 
 module.exports = CommentRepositoryPostgres;

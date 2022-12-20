@@ -6,3 +6,6 @@ exports.up = (pgm) => {
     default: false,
   });
 };
+
+
+exports.down = (pgm) => {};
