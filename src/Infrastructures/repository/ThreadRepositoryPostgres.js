@@ -57,9 +57,11 @@ class ThreadRepositoryPostgres extends ThreadRepository {
         id: commentId, rid, rname, rdate, rcontent,
       } = item;
       group[commentId] = group[commentId] ?? [];
-      group[commentId].push({
-        id: rid, username: rname, date: rdate, content: rcontent,
-      });
+      if (rid) {
+        group[commentId].push({
+          id: rid, username: rname, date: rdate, content: rcontent,
+        });
+      }
       return group;
     }, {});
 

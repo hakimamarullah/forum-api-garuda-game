@@ -20,7 +20,6 @@ const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgre
 const ReplyRepository = require('../Domains/reply/ReplyRepository');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
 
-
 // use case
 const AddUserUseCase = require('../Applications/use_case/AddUserUseCase');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -36,7 +35,6 @@ const DeleteThreadCommentUseCase = require('../Applications/use_case/DeleteThrea
 const GetThreadDetailsUseCase = require('../Applications/use_case/GetThreadDetailsUseCase');
 const AddCommentReplyUseCase = require('../Applications/use_case/AddCommentReplyUseCase');
 const DeleteCommentReplyUseCase = require('../Applications/use_case/DeleteCommentReplyUseCase');
-
 
 // creating container
 const container = createContainer();
