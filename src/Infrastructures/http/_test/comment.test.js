@@ -1,13 +1,16 @@
+/* eslint-disable max-len */
 const pool = require('../../database/postgres/pool');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentTableTestHelper = require('../../../../tests/CommentTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
-describe('/threads endpoint', () => {
+describe('/threads/threadId/comments endpoint', () => {
   let token = '';
   let thread = {};
+  let comment = {};
   beforeAll(async () => {
     const requestPayload = {
       username: 'dicoding',
@@ -44,8 +47,8 @@ describe('/threads endpoint', () => {
     await pool.end();
   });
 
-  describe('when POST /threads', () => {
-    it('should response 201 and persisted thread', async () => {
+  describe('when POST /threads/threadId/comments', () => {
+    it('should response 201 and persisted comments', async () => {
       // Arrange
       const requestPayload = {
         title: 'integration test threads',
@@ -65,70 +68,42 @@ describe('/threads endpoint', () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       thread = responseJson.data.addedThread;
-      expect(response.statusCode).toEqual(201);
-      expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedThread).toBeDefined();
-    });
 
-    it('should response 401 when no auth token', async () => {
-      // Arrange
-      const requestPayload = {
-        title: 'integration test threads',
-        body: 'body',
+      const commentRequestPayload = {
+        content: 'sebuah comment',
       };
-      // eslint-disable-next-line no-undef
-      const server = await createServer(container);
 
-      // Action
-      const response = await server.inject({
+      const commentResponse = await server.inject({
         method: 'POST',
-        url: '/threads',
-        payload: requestPayload,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(401);
-      expect(responseJson.error).toEqual('Unauthorized');
-      expect(responseJson.message).toEqual('Missing authentication');
-    });
-
-    it('should response 200 and persisted thread', async () => {
-      // eslint-disable-next-line no-undef
-      const server = await createServer(container);
-
-      // Action
-      const response = await server.inject({
-        method: 'GET',
-        url: `/threads/${thread.id}`,
+        url: `/threads/${thread.id}/comments`,
+        payload: commentRequestPayload,
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(200);
-      expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.thread).toBeDefined();
-      expect(responseJson.data.thread.id).toEqual(thread.id);
-      expect(responseJson.data.thread.title).toEqual(thread.title);
-      expect(responseJson.data.thread.comments).toBeInstanceOf(Array);
+      const commentResponseJson = JSON.parse(commentResponse.payload);
+      comment = commentResponseJson.data.addedComment;
+      expect(commentResponse.statusCode).toEqual(201);
+      expect(commentResponseJson.status).toEqual('success');
+      expect(commentResponseJson.data.addedComment).toBeDefined();
+      expect(commentResponseJson.data.addedComment.id).toBeDefined();
+      expect(commentResponseJson.data.addedComment.content).toEqual(commentRequestPayload.content);
+      expect(commentResponseJson.data.addedComment.owner).toBeDefined();
     });
 
-    it('should response 404 after deleting thread comment with invalid comment id', async () => {
+    it('should response 200 after deleting thread comment', async () => {
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
 
       // Action
       const response = await server.inject({
         method: 'DELETE',
-        url: `/threads/${thread.id}/comments/${null}`,
+        url: `/threads/${thread.id}/comments/${comment.id}`,
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Assert
-      expect(response.statusCode).toEqual(404);
-      expect(response.result.status).toEqual('fail');
-      expect(response.result.message).toEqual('Thread atau comment tidak ditemukan');
+      expect(response.statusCode).toEqual(200);
+      expect(response.result.status).toEqual('success');
     });
   });
 });
