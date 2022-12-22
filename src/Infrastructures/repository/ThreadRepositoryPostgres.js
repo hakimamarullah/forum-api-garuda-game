@@ -84,6 +84,8 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       t.id === value.id
     )));
 
+    comments = comments.sort((a, b) => a.date - b.date);
+
     return {
       id, title, body, date, username, comments,
     };
