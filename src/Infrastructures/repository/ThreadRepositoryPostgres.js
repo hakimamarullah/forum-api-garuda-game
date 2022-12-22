@@ -22,16 +22,29 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return new AddedThread({ ...result.rows[0] });
   }
 
+  async verifyThreadExists(threadId) {
+    const query = {
+      text: 'SELECT id FROM threads WHERE id = $1',
+      values: [threadId],
+    };
+
+    const { rowCount } = await this._pool.query(query);
+
+    if (!rowCount) {
+      throw new NotFoundError('Thread tidak ditemukan');
+    }
+  }
+
   async getThreadDetails(threadId) {
     const query = {
       text: `
       SELECT t.id as tid, t.title, t.body, t.date as tdate, us.username, cm.*, rp.*
       FROM threads t
-      LEFT JOIN  (SELECT c.id, u.username as cname, c.date, c.content, c."threadId"
+      LEFT JOIN  (SELECT c.id, u.username as cname, c.date, c.content, c."threadId", c."isDelete" as cdeleted
                   FROM comments c, users u
                   WHERE c."owner" = u.id
                   ORDER BY c.date ASC) cm ON t.id = cm."threadId"
-      LEFT JOIN (SELECT r.id as rid, ur.username as rname, r.date as rdate, r.content as rcontent,  r."parentId"
+      LEFT JOIN (SELECT r.id as rid, ur.username as rname, r.date as rdate, r.content as rcontent, r."isDelete" as rdeleted, r."parentId"
                  FROM reply r, users ur
                  WHERE r.owner = ur.id
                  ORDER BY r.date ASC) rp ON rp."parentId" = cm.id
@@ -54,12 +67,13 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
     const replies = rows.reduce((group, item) => {
       const {
-        id: commentId, rid, rname, rdate, rcontent,
+        id: commentId, rid, rname, rdate, rcontent, rdeleted,
       } = item;
       group[commentId] = group[commentId] ?? [];
       if (rid) {
+        const content = rdeleted ? '**balasan telah dihapus**' : rcontent;
         group[commentId].push({
-          id: rid, username: rname, date: rdate, content: rcontent,
+          id: rid, username: rname, date: rdate, content,
         });
       }
       return group;
@@ -71,7 +85,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
           id: item.id,
           username: item.cname,
           date: item.date,
-          content: item.content,
+          content: item.cdeleted ? '**komentar telah dihapus**' : item.content,
           replies: replies[item.id],
         });
       }

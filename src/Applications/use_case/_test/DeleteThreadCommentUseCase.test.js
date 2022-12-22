@@ -28,7 +28,7 @@ describe('DeleteThreadCommentUseCase', () => {
       .toThrowError('DELETE_THREAD_COMMENT_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-  it('should orchestrating the delete comment reply action correctly', async () => {
+  it('should orchestrating the delete comment  action correctly', async () => {
     // Arrange
     const useCasePayload = {
       threadId: 'thread-123',
@@ -38,6 +38,8 @@ describe('DeleteThreadCommentUseCase', () => {
 
     const mockCommentRepository = new CommentRepository();
     mockCommentRepository.verifyCommentExists = jest.fn()
+      .mockImplementation(() => Promise.resolve());
+    mockCommentRepository.verifyCommentOwner = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockCommentRepository.softDeleteComment = jest.fn()
       .mockImplementation(() => Promise.resolve());
@@ -52,6 +54,8 @@ describe('DeleteThreadCommentUseCase', () => {
     // Assert
     expect(mockCommentRepository.verifyCommentExists)
       .toHaveBeenCalledWith(useCasePayload.threadId, useCasePayload.commentId);
+    expect(mockCommentRepository.verifyCommentOwner)
+      .toHaveBeenCalledWith(useCasePayload.commentId, useCasePayload.ownerId);
     expect(mockCommentRepository.softDeleteComment)
       .toHaveBeenCalledWith(
         useCasePayload.threadId,

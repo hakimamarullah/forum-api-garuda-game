@@ -7,11 +7,11 @@ const CommentTableTestHelper = {
   },
 
   async addComment({
-    id = 'comment-123', content = 'sebuah comment', userId = 'user-123', threadId = 'thread-123',
+    id = 'comment-123', content = 'sebuah comment', userId = 'user-123', threadId = 'thread-123', date = new Date(),
   }) {
     const query = {
-      text: 'INSERT INTO comments(id, content, owner, "threadId") VALUES($1, $2, $3, $4) RETURNING id, content, owner',
-      values: [id, content, userId, threadId],
+      text: 'INSERT INTO comments(id, content, owner, "threadId", date) VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
+      values: [id, content, userId, threadId, date],
     };
 
     await pool.query(query);
@@ -26,6 +26,15 @@ const CommentTableTestHelper = {
     const result = await pool.query(query);
 
     return result.rows;
+  },
+
+  async softDeleteCommentById(commentId) {
+    const query = {
+      text: 'UPDATE comments SET "isDelete" = true WHERE id = $1',
+      values: [commentId],
+    };
+
+    await pool.query(query);
   },
 };
 

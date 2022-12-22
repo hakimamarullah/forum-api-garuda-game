@@ -19,27 +19,36 @@ class CommentRepositoryPostgres extends CommentRepository {
       values: [id, content, userId, threadId],
     };
 
-    return this._pool.query(query)
-      .then((res) => res.rows[0])
-      .catch((err) => {
-        if (err.code === '23503') {
-          throw new NotFoundError('Thread tidak ditemukan');
-        }
+    const { rows } = await this._pool.query(query);
 
-        throw new InvariantError(err.message);
-      });
+    return rows[0];
   }
 
   async softDeleteComment(threadId, commentId, ownerId) {
     const query = {
-      text: 'UPDATE comments SET "isDelete" = true, content = $4 WHERE "threadId" = $1 AND id = $2 AND owner = $3',
-      values: [threadId, commentId, ownerId, '**komentar telah dihapus**'],
+      text: 'UPDATE comments SET "isDelete" = true WHERE "threadId" = $1 AND id = $2 AND owner = $3',
+      values: [threadId, commentId, ownerId],
     };
 
-    const result = await this._pool.query(query);
+    await this._pool.query(query);
+  }
 
-    if (result.rowCount === 0) {
-      throw new AuthorizationError('Anda tidak diizinkan menghapus comment ini');
+  async verifyCommentOwner(commentId, ownerId) {
+    const query = {
+      text: 'SELECT owner FROM comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Komen tidak ditemukan');
+    }
+
+    const trueOwner = rows[0].owner;
+
+    if (trueOwner !== ownerId) {
+      throw new AuthorizationError('Anda tidak berhak menghapus komen ini');
     }
   }
 

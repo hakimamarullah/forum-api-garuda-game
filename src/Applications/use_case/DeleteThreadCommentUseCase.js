@@ -7,6 +7,7 @@ class DeleteThreadCommentUseCase {
     this._validatePayload(useCasePayload);
     const { threadId, ownerId, commentId } = useCasePayload;
     await this._commentRepository.verifyCommentExists(threadId, commentId);
+    await this._commentRepository.verifyCommentOwner(commentId, ownerId);
     await this._commentRepository.softDeleteComment(threadId, commentId, ownerId);
     return { status: 'success' };
   }
