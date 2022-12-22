@@ -1,6 +1,7 @@
 const ReplyRepository = require('../../Domains/reply/ReplyRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+const InvariantError = require('../../Commons/exceptions/InvariantError');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
   constructor(pool, idGenerator) {
@@ -27,6 +28,8 @@ class ReplyRepositoryPostgres extends ReplyRepository {
         if (err.code === '23503') {
           throw new NotFoundError('Thread atau comment tidak ditemukan');
         }
+
+        throw new InvariantError(err.message);
       });
   }
 

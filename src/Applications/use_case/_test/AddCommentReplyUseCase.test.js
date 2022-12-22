@@ -1,6 +1,3 @@
-const AddCommentUseCase = require('../AddCommentUseCase');
-const CommentRepository = require('../../../Domains/comments/CommentRepository');
-const Comment = require('../../../Domains/comments/entities/Comment');
 const ReplyRepository = require('../../../Domains/reply/ReplyRepository');
 const AddCommentReplyUseCase = require('../AddCommentReplyUseCase');
 

@@ -15,6 +15,17 @@ const ReplyTableTestHelper = {
 
     await pool.query(query);
   },
+
+  async findRepliesById(replyId) {
+    const query = {
+      text: 'SELECT * FROM reply WHERE id = $1',
+      values: [replyId],
+    };
+
+    const { rows } = await pool.query(query);
+
+    return rows;
+  },
 };
 
 module.exports = ReplyTableTestHelper;
