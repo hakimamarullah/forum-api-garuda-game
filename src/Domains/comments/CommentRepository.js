@@ -10,9 +10,5 @@ class CommentRepository {
   async softDeleteComment(threadId, commentId, ownerId) {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
-
-  async addCommentReply(comment) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
 }
 module.exports = CommentRepository;

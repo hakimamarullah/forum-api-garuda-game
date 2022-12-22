@@ -1,7 +1,7 @@
 const CommentRepository = require('../../Domains/comments/CommentRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
-const InvariantError = require('../../Commons/exceptions/InvariantError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+const InvariantError = require('../../Commons/exceptions/InvariantError');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -25,6 +25,8 @@ class CommentRepositoryPostgres extends CommentRepository {
         if (err.code === '23503') {
           throw new NotFoundError('Thread tidak ditemukan');
         }
+
+        throw new InvariantError(err.message);
       });
   }
 
@@ -52,26 +54,6 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (result.rowCount === 0) {
       throw new NotFoundError('Thread atau comment tidak ditemukan');
     }
-  }
-
-  async addCommentReply(comment) {
-    const id = `comment-${this._idGenerator()}`;
-    const {
-      threadId, commentId, userId, content,
-    } = comment;
-
-    const query = {
-      text: 'INSERT INTO comments(id, content, owner, "threadId", "parent_id") VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
-      values: [id, content, userId, threadId, commentId],
-    };
-
-    return this._pool.query(query)
-      .then((res) => res.rows[0])
-      .catch((err) => {
-        if (err.code === '23503') {
-          throw new NotFoundError('Thread tidak ditemukan');
-        }
-      });
   }
 }
 

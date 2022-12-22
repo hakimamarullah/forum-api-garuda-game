@@ -1,4 +1,3 @@
-const AddCommentReplyUseCase = require('../../../../Applications/use_case/AddCommentReplyUseCase');
 const AddCommentUseCase = require('../../../../Applications/use_case/AddCommentUseCase');
 
 class CommentHandler {
