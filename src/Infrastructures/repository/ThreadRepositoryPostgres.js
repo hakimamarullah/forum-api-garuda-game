@@ -65,13 +65,20 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       return group;
     }, {});
 
-    let comments = rows.map((item) => ({
-      id: item.id,
-      username: item.cname,
-      date: item.date,
-      content: item.content,
-      replies: replies[item.id],
-    }));
+    let comments = rows.map((item) => {
+      if (item.id) {
+        return ({
+          id: item.id,
+          username: item.cname,
+          date: item.date,
+          content: item.content,
+          replies: replies[item.id],
+        });
+      }
+      return {};
+    });
+
+    comments = comments.length === 1 && Object.keys(comments[0]).length === 0 ? [] : comments;
 
     comments = comments.filter((value, index, self) => index === self.findIndex((t) => (
       t.id === value.id
