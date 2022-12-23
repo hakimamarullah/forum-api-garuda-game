@@ -1,3 +1,4 @@
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/reply/ReplyRepository');
 const AddCommentReplyUseCase = require('../AddCommentReplyUseCase');
 
@@ -23,6 +24,7 @@ describe('AddCommentReplyUseCase', () => {
 
     /** creating dependency of use case */
     const mockReplyRepository = new ReplyRepository();
+    const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
     mockReplyRepository.addCommentReply = jest.fn()
@@ -32,9 +34,14 @@ describe('AddCommentReplyUseCase', () => {
         owner: useCasePayload.userId,
       }));
 
+    mockCommentRepository.verifyCommentExists = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve());
+
     /** creating use case instance */
     const getCommentReplyUseCase = new AddCommentReplyUseCase({
       replyRepository: mockReplyRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
@@ -43,6 +50,8 @@ describe('AddCommentReplyUseCase', () => {
 
     expect(addedCommentReply).toStrictEqual(expectedAddedCommentReply);
     expect(mockReplyRepository.addCommentReply).toBeCalledWith(useCasePayload);
+    expect(mockCommentRepository.verifyCommentExists)
+      .toBeCalledWith(useCasePayload.threadId, useCasePayload.commentId);
   });
 
   it('should throw error when new reply payload not contains needed property', async () => {

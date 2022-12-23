@@ -71,9 +71,8 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       } = item;
       group[commentId] = group[commentId] ?? [];
       if (rid) {
-        const content = rdeleted ? '**balasan telah dihapus**' : rcontent;
         group[commentId].push({
-          id: rid, username: rname, date: rdate, content,
+          id: rid, username: rname, date: rdate, content: rcontent, deleted: rdeleted,
         });
       }
       return group;
@@ -85,7 +84,8 @@ class ThreadRepositoryPostgres extends ThreadRepository {
           id: item.id,
           username: item.cname,
           date: item.date,
-          content: item.cdeleted ? '**komentar telah dihapus**' : item.content,
+          content: item.content,
+          deleted: item.cdeleted,
           replies: replies[item.id],
         });
       }
@@ -97,8 +97,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     comments = comments.filter((value, index, self) => index === self.findIndex((t) => (
       t.id === value.id
     )));
-
-    comments = comments.sort((a, b) => a.date - b.date);
 
     return {
       id, title, body, date, username, comments,

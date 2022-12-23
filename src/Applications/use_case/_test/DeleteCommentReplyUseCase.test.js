@@ -40,6 +40,7 @@ describe('DeleteCommentReplyUseCase', () => {
 
     const mockReplyRepository = new ReplyRepository();
     mockReplyRepository.verifyCommentExists = jest.fn().mockImplementation(() => Promise.resolve());
+    mockReplyRepository.verifyReplyOwner = jest.fn().mockImplementation(() => Promise.resolve());
     mockReplyRepository.softDeleteCommentReply = jest.fn()
       .mockImplementation(() => Promise.resolve());
 

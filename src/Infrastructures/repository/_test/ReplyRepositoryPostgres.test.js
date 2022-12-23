@@ -1,3 +1,4 @@
+const { DatabaseError } = require('pg');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentTableTestHelper = require('../../../../tests/CommentTableTestHelper');
 const pool = require('../../database/postgres/pool');
@@ -49,23 +50,6 @@ describe('ReplyRepositoryPostgres', () => {
       expect(replies).toHaveLength(1);
     });
 
-    it('should throw not found error when comment id not found', async () => {
-      // Arrange
-      const newReply = {
-        content: 'sebuah balasan',
-        userId: 'user-123',
-        threadId: 'thread-123',
-        commentId: 'comment-11',
-      };
-      const fakeIdGenerator = () => '123'; // stub!
-      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
-
-      // Action
-      await expect(replyRepositoryPostgres.addCommentReply(newReply))
-        .rejects
-        .toThrowError(NotFoundError);
-    });
-
     it('should throw error when database constraints error', async () => {
       // Arrange
       const newReply = {
@@ -81,7 +65,7 @@ describe('ReplyRepositoryPostgres', () => {
       // Action
       await expect(replyRepositoryPostgres.addCommentReply(newReply))
         .rejects
-        .toThrowError(InvariantError);
+        .toThrowError(DatabaseError);
     });
 
     it('should return added comment correctly', async () => {
@@ -143,23 +127,6 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('softDeleteCommentReply function', () => {
-    it('should throw authorization error when user id not match given comment owner', async () => {
-      // Arrange
-      const payload = {
-        threadId: 'thread-123',
-        commentId: 'comment-123',
-        replyId: 'reply-123',
-        userId: 'user-1',
-      };
-
-      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
-
-      // Assert
-      await expect(replyRepositoryPostgres.softDeleteCommentReply(payload))
-        .rejects
-        .toThrowError(AuthorizationError);
-    });
-
     it('should delete comment successfully', async () => {
       // Arrange
       const payload = {
@@ -179,12 +146,12 @@ describe('ReplyRepositoryPostgres', () => {
       await expect(replyRepositoryPostgres.softDeleteCommentReply(payload))
         .resolves
         .not
-        .toThrow();
+        .toThrow(NotFoundError);
 
       const replies = await ReplyTableTestHelper.findRepliesById('reply-test');
-
       expect(replies).toHaveLength(1);
-      expect(replies[0].content).toEqual('**balasan telah dihapus**');
+      expect(replies[0].content).toEqual('sebuah balasan');
+      expect(replies[0].isDelete).toEqual(true);
     });
   });
 });

@@ -1,10 +1,13 @@
 class AddCommentReplyUseCase {
-  constructor({ replyRepository }) {
+  constructor({ replyRepository, commentRepository }) {
     this._replyRepository = replyRepository;
+    this._commentRepository = commentRepository;
   }
 
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
+    const { threadId, commentId } = useCasePayload;
+    await this._commentRepository.verifyCommentExists(threadId, commentId);
     return this._replyRepository.addCommentReply(useCasePayload);
   }
 

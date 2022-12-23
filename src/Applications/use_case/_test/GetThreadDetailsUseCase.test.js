@@ -7,7 +7,16 @@ describe('GetThreadDetailsUseCase', () => {
     const payload = { threadId: 'thread-123' };
 
     const mockThreadRepository = new ThreadRepository();
-    mockThreadRepository.getThreadDetails = jest.fn().mockImplementation(() => Promise.resolve());
+    mockThreadRepository.getThreadDetails = jest.fn().mockImplementation(() => Promise.resolve(
+      {
+        id: 'thread-vcoLlcvzPDxEGDAtPNwsD',
+        title: 'sebuah thread',
+        body: 'sebuah body thread',
+        date: '2022-12-22T11:13:34.754Z',
+        username: 'dicoding',
+        comments: [],
+      },
+    ));
 
     const getThreadDetailsUseCase = new GetThreadDetailsUseCase({
       threadRepository: mockThreadRepository,
@@ -37,14 +46,28 @@ describe('GetThreadDetailsUseCase', () => {
           username: 'johndoe',
           date: '2022-12-22T11:13:47.889Z',
           content: 'sebuah comment',
-          replies: [],
+          deleted: false,
+          replies: [{
+            id: 'reply-YUYBSOc3IkFFsOm1fY0hn',
+            username: 'johndoe',
+            date: '2022-12-22T11:13:47.889Z',
+            deleted: true,
+            content: 'sebuah balasan',
+          }],
         },
         {
           id: 'comment-phzTzJz3OREZwSVDbkbGI',
           username: 'dicoding',
           date: '2022-12-22T11:13:51.909Z',
           content: 'sebuah comment',
-          replies: [],
+          deleted: true,
+          replies: [{
+            id: 'reply-phzTzJz3OREZwSVDbkbGI',
+            username: 'dicoding',
+            date: '2022-12-22T11:13:51.909Z',
+            deleted: false,
+            content: 'sebuah balasan 2',
+          }],
         },
       ],
     };
@@ -61,14 +84,24 @@ describe('GetThreadDetailsUseCase', () => {
           username: 'johndoe',
           date: '2022-12-22T11:13:47.889Z',
           content: 'sebuah comment',
-          replies: [],
+          replies: [{
+            id: 'reply-YUYBSOc3IkFFsOm1fY0hn',
+            username: 'johndoe',
+            date: '2022-12-22T11:13:47.889Z',
+            content: '**balasan telah dihapus**',
+          }],
         },
         {
           id: 'comment-phzTzJz3OREZwSVDbkbGI',
           username: 'dicoding',
           date: '2022-12-22T11:13:51.909Z',
-          content: 'sebuah comment',
-          replies: [],
+          content: '**komentar telah dihapus**',
+          replies: [{
+            id: 'reply-phzTzJz3OREZwSVDbkbGI',
+            username: 'dicoding',
+            date: '2022-12-22T11:13:51.909Z',
+            content: 'sebuah balasan 2',
+          }],
         },
       ],
     };
@@ -96,13 +129,6 @@ describe('GetThreadDetailsUseCase', () => {
     expect(result.username).toBeDefined();
 
     // Check comments property
-    expect(result.comments).toBeDefined();
-    expect(result.comments).toBeInstanceOf(Array);
-    expect(result.comments[0].id).toBeDefined();
-    expect(result.comments[0].username).toBeDefined();
-    expect(result.comments[0].date).toBeDefined();
-    expect(result.comments[0].content).toBeDefined();
-    expect(result.comments[0].replies).toBeDefined();
-    expect(result.comments[0].replies).toBeInstanceOf(Array);
+    expect(result).toStrictEqual(expectedThreadDetails);
   });
 });

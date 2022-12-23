@@ -1,7 +1,6 @@
 const ReplyRepository = require('../../Domains/reply/ReplyRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
-const InvariantError = require('../../Commons/exceptions/InvariantError');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
   constructor(pool, idGenerator) {
@@ -22,15 +21,9 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       values: [id, content, userId, threadId, commentId],
     };
 
-    return this._pool.query(query)
-      .then((res) => res.rows[0])
-      .catch((err) => {
-        if (err.code === '23503') {
-          throw new NotFoundError('Thread atau comment tidak ditemukan');
-        }
+    const { rows } = await this._pool.query(query);
 
-        throw new InvariantError(err.message);
-      });
+    return rows[0];
   }
 
   async softDeleteCommentReply(deleteReply) {
@@ -39,15 +32,11 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     } = deleteReply;
 
     const query = {
-      text: 'UPDATE reply SET "isDelete" = true, content = $5 WHERE "threadId" = $1 AND id = $2 AND owner = $3 AND "parentId" = $4',
-      values: [threadId, replyId, userId, commentId, '**balasan telah dihapus**'],
+      text: 'UPDATE reply SET "isDelete" = true WHERE "threadId" = $1 AND id = $2 AND owner = $3 AND "parentId" = $4',
+      values: [threadId, replyId, userId, commentId],
     };
 
-    const result = await this._pool.query(query);
-
-    if (result.rowCount === 0) {
-      throw new AuthorizationError('Anda tidak diizinkan menghapus balasan ini');
-    }
+    await this._pool.query(query);
   }
 
   async verifyCommentExists(payload) {
@@ -57,10 +46,29 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       values: [replyId, threadId, commentId],
     };
 
-    const result = await this._pool.query(query);
+    const { rowCount } = await this._pool.query(query);
 
-    if (result.rowCount === 0) {
+    if (!rowCount) {
       throw new NotFoundError('Data reply tidak ditemukan');
+    }
+  }
+
+  async verifyReplyOwner(replyId, userId) {
+    const query = {
+      text: 'SELECT owner FROM reply WHERE id = $1',
+      values: [replyId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Balasan tidak ditemukan');
+    }
+
+    const trueOwner = rows[0].owner;
+
+    if (trueOwner !== userId) {
+      throw new AuthorizationError('Anda tidak berhak menghapus balasan ini');
     }
   }
 }
