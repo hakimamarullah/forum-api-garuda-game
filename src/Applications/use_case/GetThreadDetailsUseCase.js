@@ -17,15 +17,16 @@ class GetThreadDetailsUseCase {
   }
 
   updateDeletedReplyContent(replies) {
-    return replies?.map((reply) => {
+    const res = replies?.map((reply) => {
       const rep = { ...reply, content: reply.deleted ? '**balasan telah dihapus**' : reply.content };
       delete rep.deleted;
       return rep;
-    }).sort((a, b) => a.date - b.date);
+    });
+    return res.sort((a, b) => a.date - b.date);
   }
 
   updateDeletedCommentAndReplyContent(comments) {
-    return comments?.map((comment) => {
+    const res = comments?.map((comment) => {
       const com = {
         ...comment,
         content: comment.deleted ? '**komentar telah dihapus**' : comment.content,
@@ -33,7 +34,9 @@ class GetThreadDetailsUseCase {
       };
       delete com.deleted;
       return com;
-    }).sort((a, b) => a.date - b.date);
+    });
+
+    return res.sort((a, b) => a.date - b.date);
   }
 }
 

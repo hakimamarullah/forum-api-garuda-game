@@ -71,7 +71,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       } = item;
       group[commentId] = group[commentId] ?? [];
       if (rid) {
-        const content = rdeleted ? '**balasan telah dihapus**' : rcontent;
         group[commentId].push({
           id: rid, username: rname, date: rdate, content: rcontent, deleted: rdeleted,
         });

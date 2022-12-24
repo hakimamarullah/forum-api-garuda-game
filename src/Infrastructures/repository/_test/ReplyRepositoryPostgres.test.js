@@ -7,7 +7,6 @@ const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const ReplyTableTestHelper = require('../../../../tests/ReplyTableTestHelper');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
-const InvariantError = require('../../../Commons/exceptions/InvariantError');
 
 describe('ReplyRepositoryPostgres', () => {
   beforeAll(async () => {
@@ -91,6 +90,66 @@ describe('ReplyRepositoryPostgres', () => {
     });
   });
 
+  describe('verifyReplyOwner', () => {
+    it('should throw NotFoundError when reply not found', async () => {
+      // Arrange
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      const payload = {
+        replyId: 'reply-123',
+        userId: 'user-123',
+      };
+
+      // Action & Assert
+      await expect(replyRepositoryPostgres.verifyReplyOwner(payload.replyId, payload.userId))
+        .rejects
+        .toThrowError(NotFoundError);
+    });
+
+    it('should throw AuthorizationError when reply\'s owner not match', async () => {
+      // Arrange
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      const payload = {
+        replyId: 'reply-test',
+        userId: 'user-1',
+      };
+      await ThreadTableTestHelper.addThread({ id: 'thread-1', date: new Date() });
+      await CommentTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', userId: 'user-123' });
+      await ReplyTableTestHelper.addReply({
+        id: 'reply-test', threadId: 'thread-1', commentId: 'comment-1', userId: 'user-123',
+      });
+
+      // Action & Assert
+      await expect(replyRepositoryPostgres.verifyReplyOwner(payload.replyId, payload.userId))
+        .rejects
+        .toThrowError(AuthorizationError);
+
+      await expect(replyRepositoryPostgres.verifyReplyOwner('reply-test', 'user-123'))
+        .resolves
+        .not
+        .toThrow(AuthorizationError);
+    });
+
+    it('should not throw error when owner matched', async () => {
+      // Arrange
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
+      const payload = {
+        replyId: 'reply-test',
+        userId: 'user-123',
+      };
+      await ThreadTableTestHelper.addThread({ id: 'thread-1', date: new Date() });
+      await CommentTableTestHelper.addComment({ id: 'comment-1', threadId: 'thread-1', userId: 'user-123' });
+      await ReplyTableTestHelper.addReply({
+        id: 'reply-test', threadId: 'thread-1', commentId: 'comment-1', userId: 'user-123',
+      });
+
+      // Action & Assert
+      await expect(replyRepositoryPostgres.verifyReplyOwner(payload.replyId, payload.userId))
+        .resolves
+        .not
+        .toThrow(AuthorizationError);
+    });
+  });
+
   describe('verifyCommentExistFunction', () => {
     it('should throw NotFoundError when thread not found', async () => {
       // Arrange
@@ -122,7 +181,10 @@ describe('ReplyRepositoryPostgres', () => {
       });
 
       // Action & Assert
-      await expect(replyRepositoryPostgres.verifyCommentExists(payload)).resolves.not.toThrow();
+      await expect(replyRepositoryPostgres.verifyCommentExists(payload))
+        .resolves
+        .not
+        .toThrow(NotFoundError);
     });
   });
 

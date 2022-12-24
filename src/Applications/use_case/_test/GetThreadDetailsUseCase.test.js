@@ -33,41 +33,63 @@ describe('GetThreadDetailsUseCase', () => {
   it('should orchestrating the get thread details action correctly and return expected object', async () => {
     // Arrange
     const payload = { threadId: 'thread-123' };
+    const date = new Date();
+    // eslint-disable-next-line no-promise-executor-return
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    await sleep(2000);
+
+    const date2 = new Date();
 
     const mockReturnValue = {
       id: 'thread-vcoLlcvzPDxEGDAtPNwsD',
       title: 'sebuah thread',
       body: 'sebuah body thread',
-      date: '2022-12-22T11:13:34.754Z',
+      date: date2,
       username: 'dicoding',
       comments: [
         {
           id: 'comment-YUYBSOc3IkFFsOm1fY0hn',
           username: 'johndoe',
-          date: '2022-12-22T11:13:47.889Z',
+          date: date2,
           content: 'sebuah comment',
-          deleted: false,
-          replies: [{
-            id: 'reply-YUYBSOc3IkFFsOm1fY0hn',
-            username: 'johndoe',
-            date: '2022-12-22T11:13:47.889Z',
-            deleted: true,
-            content: 'sebuah balasan',
-          }],
+          deleted: true,
+          replies: [
+            {
+              id: 'reply-YUYBSOc3IkFFsOm1fY0hn',
+              username: 'johndoe',
+              date: date2,
+              deleted: true,
+              content: 'sebuah balasan',
+            },
+            {
+              id: 'reply-YUYBSOc3IkFFsOm1fY1hn',
+              username: 'johndoe',
+              date,
+              deleted: true,
+              content: 'sebuah balasan',
+            }],
         },
         {
           id: 'comment-phzTzJz3OREZwSVDbkbGI',
           username: 'dicoding',
-          date: '2022-12-22T11:13:51.909Z',
+          date,
           content: 'sebuah comment',
-          deleted: true,
-          replies: [{
-            id: 'reply-phzTzJz3OREZwSVDbkbGI',
-            username: 'dicoding',
-            date: '2022-12-22T11:13:51.909Z',
-            deleted: false,
-            content: 'sebuah balasan 2',
-          }],
+          deleted: false,
+          replies: [
+            {
+              id: 'reply-phzTzJz3OREZwSVDbkbGI',
+              username: 'dicoding',
+              date: date2,
+              deleted: true,
+              content: 'sebuah balasan 2',
+            },
+            {
+              id: 'reply-phzTzJz3OREZwSVDbkbGy',
+              username: 'dicoding',
+              date,
+              deleted: false,
+              content: 'sebuah balasan 2',
+            }],
         },
       ],
     };
@@ -76,32 +98,46 @@ describe('GetThreadDetailsUseCase', () => {
       id: 'thread-vcoLlcvzPDxEGDAtPNwsD',
       title: 'sebuah thread',
       body: 'sebuah body thread',
-      date: '2022-12-22T11:13:34.754Z',
+      date: date2,
       username: 'dicoding',
       comments: [
         {
-          id: 'comment-YUYBSOc3IkFFsOm1fY0hn',
-          username: 'johndoe',
-          date: '2022-12-22T11:13:47.889Z',
-          content: 'sebuah comment',
-          replies: [{
-            id: 'reply-YUYBSOc3IkFFsOm1fY0hn',
-            username: 'johndoe',
-            date: '2022-12-22T11:13:47.889Z',
-            content: '**balasan telah dihapus**',
-          }],
-        },
-        {
           id: 'comment-phzTzJz3OREZwSVDbkbGI',
           username: 'dicoding',
-          date: '2022-12-22T11:13:51.909Z',
+          date,
+          content: 'sebuah comment',
+          replies: [
+            {
+              id: 'reply-phzTzJz3OREZwSVDbkbGy',
+              username: 'dicoding',
+              date,
+              content: 'sebuah balasan 2',
+            },
+            {
+              id: 'reply-phzTzJz3OREZwSVDbkbGI',
+              username: 'dicoding',
+              date: date2,
+              content: '**balasan telah dihapus**',
+            }],
+        },
+        {
+          id: 'comment-YUYBSOc3IkFFsOm1fY0hn',
+          username: 'johndoe',
+          date: date2,
           content: '**komentar telah dihapus**',
-          replies: [{
-            id: 'reply-phzTzJz3OREZwSVDbkbGI',
-            username: 'dicoding',
-            date: '2022-12-22T11:13:51.909Z',
-            content: 'sebuah balasan 2',
-          }],
+          replies: [
+            {
+              id: 'reply-YUYBSOc3IkFFsOm1fY1hn',
+              username: 'johndoe',
+              date,
+              content: '**balasan telah dihapus**',
+            },
+            {
+              id: 'reply-YUYBSOc3IkFFsOm1fY0hn',
+              username: 'johndoe',
+              date: date2,
+              content: '**balasan telah dihapus**',
+            }],
         },
       ],
     };
@@ -130,5 +166,15 @@ describe('GetThreadDetailsUseCase', () => {
 
     // Check comments property
     expect(result).toStrictEqual(expectedThreadDetails);
+
+    // Check ordered Reply and Comments By Date
+    expect(result.comments[0].id).toEqual('comment-phzTzJz3OREZwSVDbkbGI');
+    expect(result.comments[1].id).toEqual('comment-YUYBSOc3IkFFsOm1fY0hn');
+
+    expect(result.comments[0].replies[0].id).toEqual('reply-phzTzJz3OREZwSVDbkbGy');
+    expect(result.comments[0].replies[1].id).toEqual('reply-phzTzJz3OREZwSVDbkbGI');
+
+    expect(result.comments[1].replies[0].id).toEqual('reply-YUYBSOc3IkFFsOm1fY1hn');
+    expect(result.comments[1].replies[1].id).toEqual('reply-YUYBSOc3IkFFsOm1fY0hn');
   });
 });
