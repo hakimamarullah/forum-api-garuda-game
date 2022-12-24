@@ -146,12 +146,14 @@ describe('ThreadRepositoryPostgres', () => {
       expect(threadDetails.comments[0].username).toEqual('dicoding');
       expect(threadDetails.comments[0].date).toEqual(date);
       expect(threadDetails.comments[0].content).toEqual('sebuah comment');
+      expect(threadDetails.comments[0].deleted).toEqual(true)
 
       expect(threadDetails.comments[0].replies).toBeDefined();
       expect(threadDetails.comments[0].replies).toBeInstanceOf(Array);
       expect(threadDetails.comments[0].replies).toHaveLength(1);
 
       expect(threadDetails.comments[0].replies[0].id).toEqual('reply-123');
+      expect(threadDetails.comments[0].replies[0].deleted).toEqual(true);
       expect(threadDetails.comments[0].replies[0].username).toEqual('dicoding');
       expect(threadDetails.comments[0].replies[0].date).toEqual(date);
       expect(threadDetails.comments[0].replies[0].content).toEqual('sebuah balasan');
