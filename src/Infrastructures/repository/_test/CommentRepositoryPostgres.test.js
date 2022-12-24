@@ -6,7 +6,6 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const Comment = require('../../../Domains/comments/entities/Comment');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
-const InvariantError = require('../../../Commons/exceptions/InvariantError');
 
 describe('CommentRepositoryPostgres', () => {
   beforeAll(async () => {
@@ -139,7 +138,12 @@ describe('CommentRepositoryPostgres', () => {
       await expect(commentRepositoryPostgres.verifyCommentOwner('comment-12', 'user-123'))
         .resolves
         .not
-        .toThrow();
+        .toThrow(NotFoundError);
+
+      await expect(commentRepositoryPostgres.verifyCommentOwner('comment-12', 'user-123'))
+        .resolves
+        .not
+        .toThrow(AuthorizationError);
     });
   });
 });

@@ -6,6 +6,7 @@ class DeleteCommentReplyUseCase {
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
     await this._replyRepository.verifyCommentExists(useCasePayload);
+    await this._replyRepository.verifyReplyOwner(useCasePayload.replyId, useCasePayload.userId);
     await this._replyRepository.softDeleteCommentReply(useCasePayload);
     return { status: 'success' };
   }

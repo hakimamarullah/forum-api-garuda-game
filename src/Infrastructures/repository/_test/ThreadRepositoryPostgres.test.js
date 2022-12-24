@@ -145,7 +145,7 @@ describe('ThreadRepositoryPostgres', () => {
       expect(threadDetails.comments[0].id).toEqual('comment-123');
       expect(threadDetails.comments[0].username).toEqual('dicoding');
       expect(threadDetails.comments[0].date).toEqual(date);
-      expect(threadDetails.comments[0].content).toEqual('**komentar telah dihapus**');
+      expect(threadDetails.comments[0].content).toEqual('sebuah comment');
 
       expect(threadDetails.comments[0].replies).toBeDefined();
       expect(threadDetails.comments[0].replies).toBeInstanceOf(Array);
@@ -154,36 +154,7 @@ describe('ThreadRepositoryPostgres', () => {
       expect(threadDetails.comments[0].replies[0].id).toEqual('reply-123');
       expect(threadDetails.comments[0].replies[0].username).toEqual('dicoding');
       expect(threadDetails.comments[0].replies[0].date).toEqual(date);
-      expect(threadDetails.comments[0].replies[0].content).toEqual('**balasan telah dihapus**');
-    });
-
-    it('should return thread details when thread is found with comments ordered by date', async () => {
-      // Arrange
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-      const date = new Date();
-      const date2 = new Date();
-      await ThreadTableTestHelper.addThread({ date });
-      await CommentTableTestHelper.addComment({ date });
-      await CommentTableTestHelper.addComment({ id: 'comment-111', date: date2 });
-
-      // Action & Assert
-      const threadDetails = await threadRepositoryPostgres.getThreadDetails('thread-123');
-      expect(threadDetails.id).toBe('thread-123');
-      expect(threadDetails.title).toEqual('sebuah title');
-      expect(threadDetails.body).toEqual('sebuah body');
-      expect(threadDetails.date).toEqual(date);
-      expect(threadDetails.username).toEqual('dicoding');
-      expect(threadDetails.comments).toBeInstanceOf(Array);
-      expect(threadDetails.comments).toHaveLength(2);
-      expect(threadDetails.comments[0].id).toEqual('comment-123');
-      expect(threadDetails.comments[0].username).toEqual('dicoding');
-      expect(threadDetails.comments[0].date).toEqual(date);
-      expect(threadDetails.comments[0].content).toEqual('sebuah comment');
-
-      expect(threadDetails.comments[1].id).toEqual('comment-111');
-      expect(threadDetails.comments[1].username).toEqual('dicoding');
-      expect(threadDetails.comments[1].date).toEqual(date2);
-      expect(threadDetails.comments[1].content).toEqual('sebuah comment');
+      expect(threadDetails.comments[0].replies[0].content).toEqual('sebuah balasan');
     });
   });
 
@@ -209,7 +180,7 @@ describe('ThreadRepositoryPostgres', () => {
       await expect(threadRepositoryPostgres.verifyThreadExists('thread-test'))
         .resolves
         .not
-        .toThrow();
+        .toThrow(NotFoundError);
     });
   });
 });
