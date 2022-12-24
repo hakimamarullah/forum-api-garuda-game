@@ -85,7 +85,10 @@ describe('CommentRepositoryPostgres', () => {
       await CommentTableTestHelper.addComment({ id: 'comment-12', threadId: 'thread-12' });
 
       // Action & Assert
-      await expect(commentRepositoryPostgres.verifyCommentExists('thread-12', 'comment-12')).resolves.not.toThrow();
+      await expect(commentRepositoryPostgres.verifyCommentExists('thread-12', 'comment-12'))
+      .resolves
+      .not
+      .toThrow(NotFoundError);
     });
   });
 
