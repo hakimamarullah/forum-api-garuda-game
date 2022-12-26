@@ -51,5 +51,6 @@ describe('AddCommentUseCase', () => {
       userId,
       threadId: useCasePayload.threadId,
     }));
+    expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(useCasePayload.threadId);
   });
 });
