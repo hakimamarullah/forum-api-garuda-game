@@ -112,6 +112,7 @@ describe('ThreadRepositoryPostgres', () => {
       expect(threadDetails.comments[0].username).toEqual('dicoding');
       expect(threadDetails.comments[0].date).toEqual(date);
       expect(threadDetails.comments[0].content).toEqual('sebuah comment');
+      expect(threadDetails.comments[0].deleted).toEqual(false);
 
       expect(threadDetails.comments[0].replies).toBeDefined();
       expect(threadDetails.comments[0].replies).toBeInstanceOf(Array);
@@ -121,6 +122,7 @@ describe('ThreadRepositoryPostgres', () => {
       expect(threadDetails.comments[0].replies[0].username).toEqual('dicoding');
       expect(threadDetails.comments[0].replies[0].date).toEqual(date);
       expect(threadDetails.comments[0].replies[0].content).toEqual('sebuah balasan');
+      expect(threadDetails.comments[0].replies[0].deleted).toEqual(false);
     });
 
     it('should return thread details when thread is found with 1 deleted comment and reply in it', async () => {
