@@ -18,7 +18,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          cd ~/application/forumapi
+          cd ~/application/forum-api-garuda-game
           git pull origin master
           npm install
           npm run migrate up
