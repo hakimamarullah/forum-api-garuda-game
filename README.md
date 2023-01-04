@@ -1,5 +1,8 @@
 # Forum API Garuda Game
 ## ID Camp 2022
+![CI Master](https://github.com/hakimamarullah/forum-api-garuda-game/actions/workflows/ci.yaml/badge.svg)
+![CD Master](https://github.com/hakimamarullah/forum-api-garuda-game/actions/workflows/cd.yaml/badge.svg?branch=master)
+
 
 ### How to run locally
 prerequisite: `nodejs v16.x`
