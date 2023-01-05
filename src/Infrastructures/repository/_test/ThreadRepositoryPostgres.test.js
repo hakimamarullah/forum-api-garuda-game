@@ -98,31 +98,34 @@ describe('ThreadRepositoryPostgres', () => {
       await ThreadTableTestHelper.addThread({ date });
       await CommentTableTestHelper.addComment({ date });
       await ReplyTableTestHelper.addReply({ date });
-
+      const expectedDetails = {
+        id: 'thread-123',
+        title: 'sebuah title',
+        body: 'sebuah body',
+        date,
+        username: 'dicoding',
+        comments: [
+          {
+            id: 'comment-123',
+            username: 'dicoding',
+            date,
+            content: 'sebuah comment',
+            deleted: false,
+            replies: [
+              {
+                id: 'reply-123',
+                username: 'dicoding',
+                date,
+                content: 'sebuah balasan',
+                deleted: false,
+              },
+            ],
+          },
+        ],
+      };
       // Action & Assert
       const threadDetails = await threadRepositoryPostgres.getThreadDetails('thread-123');
-      expect(threadDetails.id).toBe('thread-123');
-      expect(threadDetails.title).toEqual('sebuah title');
-      expect(threadDetails.body).toEqual('sebuah body');
-      expect(threadDetails.date).toEqual(date);
-      expect(threadDetails.comments).toHaveLength(1);
-      expect(threadDetails.username).toEqual('dicoding');
-      expect(threadDetails.comments).toBeInstanceOf(Array);
-      expect(threadDetails.comments[0].id).toEqual('comment-123');
-      expect(threadDetails.comments[0].username).toEqual('dicoding');
-      expect(threadDetails.comments[0].date).toEqual(date);
-      expect(threadDetails.comments[0].content).toEqual('sebuah comment');
-      expect(threadDetails.comments[0].deleted).toEqual(false);
-
-      expect(threadDetails.comments[0].replies).toBeDefined();
-      expect(threadDetails.comments[0].replies).toBeInstanceOf(Array);
-      expect(threadDetails.comments[0].replies).toHaveLength(1);
-
-      expect(threadDetails.comments[0].replies[0].id).toEqual('reply-123');
-      expect(threadDetails.comments[0].replies[0].username).toEqual('dicoding');
-      expect(threadDetails.comments[0].replies[0].date).toEqual(date);
-      expect(threadDetails.comments[0].replies[0].content).toEqual('sebuah balasan');
-      expect(threadDetails.comments[0].replies[0].deleted).toEqual(false);
+      expect(threadDetails).toStrictEqual(expectedDetails);
     });
 
     it('should return thread details when thread is found with 1 deleted comment and reply in it', async () => {
@@ -134,31 +137,35 @@ describe('ThreadRepositoryPostgres', () => {
       await ReplyTableTestHelper.addReply({ date });
       await ReplyTableTestHelper.softDeleteReplyById('reply-123');
       await CommentTableTestHelper.softDeleteCommentById('comment-123');
+      const expectedDetails = {
+        id: 'thread-123',
+        title: 'sebuah title',
+        body: 'sebuah body',
+        date,
+        username: 'dicoding',
+        comments: [
+          {
+            id: 'comment-123',
+            username: 'dicoding',
+            date,
+            content: 'sebuah comment',
+            deleted: true,
+            replies: [
+              {
+                id: 'reply-123',
+                username: 'dicoding',
+                date,
+                content: 'sebuah balasan',
+                deleted: true,
+              },
+            ],
+          },
+        ],
+      };
 
       // Action & Assert
       const threadDetails = await threadRepositoryPostgres.getThreadDetails('thread-123');
-      expect(threadDetails.id).toBe('thread-123');
-      expect(threadDetails.title).toEqual('sebuah title');
-      expect(threadDetails.body).toEqual('sebuah body');
-      expect(threadDetails.date).toEqual(date);
-      expect(threadDetails.comments).toHaveLength(1);
-      expect(threadDetails.username).toEqual('dicoding');
-      expect(threadDetails.comments).toBeInstanceOf(Array);
-      expect(threadDetails.comments[0].id).toEqual('comment-123');
-      expect(threadDetails.comments[0].username).toEqual('dicoding');
-      expect(threadDetails.comments[0].date).toEqual(date);
-      expect(threadDetails.comments[0].content).toEqual('sebuah comment');
-      expect(threadDetails.comments[0].deleted).toEqual(true)
-
-      expect(threadDetails.comments[0].replies).toBeDefined();
-      expect(threadDetails.comments[0].replies).toBeInstanceOf(Array);
-      expect(threadDetails.comments[0].replies).toHaveLength(1);
-
-      expect(threadDetails.comments[0].replies[0].id).toEqual('reply-123');
-      expect(threadDetails.comments[0].replies[0].deleted).toEqual(true);
-      expect(threadDetails.comments[0].replies[0].username).toEqual('dicoding');
-      expect(threadDetails.comments[0].replies[0].date).toEqual(date);
-      expect(threadDetails.comments[0].replies[0].content).toEqual('sebuah balasan');
+      expect(threadDetails).toStrictEqual(expectedDetails);
     });
   });
 

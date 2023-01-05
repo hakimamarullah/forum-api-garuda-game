@@ -1,3 +1,4 @@
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const GetThreadDetailsUseCase = require('../GetThreadDetailsUseCase');
 
@@ -7,6 +8,7 @@ describe('GetThreadDetailsUseCase', () => {
     const payload = { threadId: 'thread-123' };
 
     const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
     mockThreadRepository.getThreadDetails = jest.fn().mockImplementation(() => Promise.resolve(
       {
         id: 'thread-vcoLlcvzPDxEGDAtPNwsD',
@@ -17,9 +19,13 @@ describe('GetThreadDetailsUseCase', () => {
         comments: [],
       },
     ));
+    mockCommentRepository.getCommentsLikes = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve([]));
 
     const getThreadDetailsUseCase = new GetThreadDetailsUseCase({
       threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
@@ -28,6 +34,7 @@ describe('GetThreadDetailsUseCase', () => {
     // Assert
     expect(mockThreadRepository.getThreadDetails).toHaveBeenCalledWith(payload.threadId);
     expect(mockThreadRepository.getThreadDetails).toBeCalledTimes(1);
+    expect(mockCommentRepository.getCommentsLikes).toBeCalledWith(payload.threadId);
   });
 
   it('should orchestrating the get thread details action correctly and return expected object', async () => {
@@ -94,6 +101,11 @@ describe('GetThreadDetailsUseCase', () => {
       ],
     };
 
+    const mockLikeCount = [
+      { commentId: 'comment-YUYBSOc3IkFFsOm1fY0hn', likeCount: '0' },
+      { commentId: 'comment-phzTzJz3OREZwSVDbkbGI', likeCount: '1' },
+    ];
+
     const expectedThreadDetails = {
       id: 'thread-vcoLlcvzPDxEGDAtPNwsD',
       title: 'sebuah thread',
@@ -106,6 +118,7 @@ describe('GetThreadDetailsUseCase', () => {
           username: 'dicoding',
           date,
           content: 'sebuah comment',
+          likeCount: 1,
           replies: [
             {
               id: 'reply-phzTzJz3OREZwSVDbkbGy',
@@ -125,6 +138,7 @@ describe('GetThreadDetailsUseCase', () => {
           username: 'johndoe',
           date: date2,
           content: '**komentar telah dihapus**',
+          likeCount: 0,
           replies: [
             {
               id: 'reply-YUYBSOc3IkFFsOm1fY1hn',
@@ -143,12 +157,17 @@ describe('GetThreadDetailsUseCase', () => {
     };
 
     const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
     mockThreadRepository.getThreadDetails = jest
       .fn()
       .mockImplementation(() => Promise.resolve(mockReturnValue));
+    mockCommentRepository.getCommentsLikes = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(mockLikeCount));
 
     const getThreadDetailsUseCase = new GetThreadDetailsUseCase({
       threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
     });
 
     // Action
@@ -157,6 +176,7 @@ describe('GetThreadDetailsUseCase', () => {
     // Assert
     expect(mockThreadRepository.getThreadDetails).toHaveBeenCalledWith(payload.threadId);
     expect(mockThreadRepository.getThreadDetails).toBeCalledTimes(1);
+    expect(mockCommentRepository.getCommentsLikes).toBeCalledWith(payload.threadId);
 
     expect(result.id).toBeDefined();
     expect(result.title).toBeDefined();
@@ -170,6 +190,8 @@ describe('GetThreadDetailsUseCase', () => {
     // Check ordered Reply and Comments By Date
     expect(result.comments[0].id).toEqual('comment-phzTzJz3OREZwSVDbkbGI');
     expect(result.comments[1].id).toEqual('comment-YUYBSOc3IkFFsOm1fY0hn');
+    expect(result.comments[0].likeCount).toEqual(1);
+    expect(result.comments[1].likeCount).toEqual(0);
 
     expect(result.comments[0].replies[0].id).toEqual('reply-phzTzJz3OREZwSVDbkbGy');
     expect(result.comments[0].replies[1].id).toEqual('reply-phzTzJz3OREZwSVDbkbGI');

@@ -9,6 +9,7 @@ const AuthorizationError = require('../../../Commons/exceptions/AuthorizationErr
 
 describe('CommentRepositoryPostgres', () => {
   beforeAll(async () => {
+    await UsersTableTestHelper.cleanTable();
     await UsersTableTestHelper.addUser({});
   });
 
@@ -23,6 +24,8 @@ describe('CommentRepositoryPostgres', () => {
 
   afterAll(async () => {
     await UsersTableTestHelper.cleanTable();
+    await CommentTableTestHelper.cleanTable();
+    await ThreadTableTestHelper.cleanTable();
     await pool.end();
   });
 
@@ -86,9 +89,9 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyCommentExists('thread-12', 'comment-12'))
-      .resolves
-      .not
-      .toThrow(NotFoundError);
+        .resolves
+        .not
+        .toThrow(NotFoundError);
     });
   });
 
