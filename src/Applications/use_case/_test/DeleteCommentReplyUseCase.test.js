@@ -56,6 +56,7 @@ describe('DeleteCommentReplyUseCase', () => {
       .toHaveBeenCalledWith(useCasePayload);
     expect(mockReplyRepository.softDeleteCommentReply)
       .toHaveBeenCalledWith(useCasePayload);
-    expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledWith(useCasePayload.replyId, useCasePayload.userId);
+    expect(mockReplyRepository.verifyReplyOwner)
+      .toHaveBeenCalledWith(useCasePayload.replyId, useCasePayload.userId);
   });
 });

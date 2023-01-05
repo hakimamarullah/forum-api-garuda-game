@@ -86,9 +86,9 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyCommentExists('thread-12', 'comment-12'))
-      .resolves
-      .not
-      .toThrow(NotFoundError);
+        .resolves
+        .not
+        .toThrow(NotFoundError);
     });
   });
 

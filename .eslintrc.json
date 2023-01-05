@@ -15,6 +15,7 @@
         "class-methods-use-this":"off",
         "no-underscore-dangle":"off",
         "no-unused-vars": "off",
-        "no-param-reassign":"off"
+        "no-param-reassign":"off",
+        "camelcase":"off"
     }
 }

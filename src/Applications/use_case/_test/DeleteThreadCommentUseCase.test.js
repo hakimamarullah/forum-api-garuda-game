@@ -43,7 +43,8 @@ describe('DeleteThreadCommentUseCase', () => {
       .mockImplementation(() => Promise.resolve());
     mockCommentRepository.softDeleteComment = jest.fn()
       .mockImplementation(() => Promise.resolve());
-
+    mockCommentRepository.deleteCommentLike = jest.fn()
+      .mockImplementation(() => Promise.resolve());
     const deleteThreadCommentUseCase = new DeleteThreadCommentUseCase({
       commentRepository: mockCommentRepository,
     });
@@ -63,6 +64,12 @@ describe('DeleteThreadCommentUseCase', () => {
         useCasePayload.commentId,
 
         useCasePayload.ownerId,
+      );
+    expect(mockCommentRepository.deleteCommentLike)
+      .toHaveBeenCalledWith(
+        useCasePayload.threadId,
+
+        useCasePayload.commentId,
       );
   });
 });

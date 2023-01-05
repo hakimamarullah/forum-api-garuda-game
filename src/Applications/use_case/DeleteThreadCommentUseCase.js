@@ -9,6 +9,7 @@ class DeleteThreadCommentUseCase {
     await this._commentRepository.verifyCommentExists(threadId, commentId);
     await this._commentRepository.verifyCommentOwner(commentId, ownerId);
     await this._commentRepository.softDeleteComment(threadId, commentId, ownerId);
+    await this._commentRepository.deleteCommentLike(threadId, commentId);
     return { status: 'success' };
   }
 

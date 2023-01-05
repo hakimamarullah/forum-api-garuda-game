@@ -1,6 +1,7 @@
 class GetThreadDetailsUseCase {
-  constructor({ threadRepository }) {
+  constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
+    this._commentRepository = commentRepository;
   }
 
   async execute(payload) {
@@ -9,7 +10,10 @@ class GetThreadDetailsUseCase {
       id, title, body, date, username, comments,
     } = await this._threadRepository.getThreadDetails(threadId);
 
-    const newComments = this.updateDeletedCommentAndReplyContent(comments);
+    const commentsLikeCount = await this._commentRepository.getCommentsLikes(threadId);
+    const likeDictionary = Object
+      .fromEntries(commentsLikeCount?.map((data) => [data.commentId, Number(data.likeCount)]));
+    const newComments = this.updateDeletedCommentAndReplyContent(comments, likeDictionary);
     const result = {
       id, title, body, date, username, comments: newComments,
     };
@@ -25,11 +29,12 @@ class GetThreadDetailsUseCase {
     return res.sort((a, b) => a.date - b.date);
   }
 
-  updateDeletedCommentAndReplyContent(comments) {
+  updateDeletedCommentAndReplyContent(comments, likeDictionary) {
     const res = comments?.map((comment) => {
       const com = {
         ...comment,
         content: comment.deleted ? '**komentar telah dihapus**' : comment.content,
+        likeCount: likeDictionary[comment.id] || 0,
         replies: this.updateDeletedReplyContent(comment.replies),
       };
       delete com.deleted;

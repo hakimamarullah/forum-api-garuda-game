@@ -2,7 +2,7 @@ const CommentRepository = require('../../../Domains/comments/CommentRepository')
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const UpdateCommentLikeUseCase = require('../UpdateCommentLikeUseCase');
 
-describe('AddCommentLikeUseCase', () => {
+describe('UpdateCommentLikeUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    * threadId, commentId, userId
@@ -30,7 +30,7 @@ describe('AddCommentLikeUseCase', () => {
 
     mockCommentRepository.updateCommentLike = jest
       .fn()
-      .mockImplementation(() => Promise.resolve(useCasePayload));
+      .mockImplementation(() => Promise.resolve(true));
 
     /** creating use case instance */
     const updateCommentLikeUseCase = new UpdateCommentLikeUseCase({
@@ -42,14 +42,12 @@ describe('AddCommentLikeUseCase', () => {
     const updatedCommentLike = await updateCommentLikeUseCase
       .execute(useCasePayload);
 
-    expect(updatedCommentLike).toBeInstanceOf(Object);
-    expect(updatedCommentLike.updated).toBeInstanceOf(Boolean);
-    expect(updatedCommentLike.updated).toEqual(true);
+    expect(updatedCommentLike).toEqual(true);
     expect(mockThreadRepository.verifyThreadExists).toBeCalledWith(useCasePayload.threadId);
     expect(mockCommentRepository.verifyCommentExists)
       .toBeCalledWith(useCasePayload.threadId, useCasePayload.commentId);
     expect(mockCommentRepository.updateCommentLike)
-      .toBeCalledWith({ commentId: useCasePayload.commentId, userId: useCasePayload.userId });
+      .toBeCalledWith(useCasePayload.userId, useCasePayload.commentId, useCasePayload.threadId);
   });
 
   it('should throw error when new comment like payload not contains needed property', async () => {
@@ -70,7 +68,7 @@ describe('AddCommentLikeUseCase', () => {
     const updateCommentLikeUseCase = new UpdateCommentLikeUseCase({});
 
     // Action & Assert
-    await expect(updateCommentLikeUseCase.execute(useCasePayload)).rejects.toThrowError('ADD_COMMENT_LIKE_USE_CASE.NOT_CONTAIN_NEEDED_ATTRIBUTE');
-    await expect(updateCommentLikeUseCase.execute(useCasePayload2)).rejects.toThrowError('ADD_COMMENT_LIKE_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    await expect(updateCommentLikeUseCase.execute(useCasePayload)).rejects.toThrowError('UPDATE_COMMENT_LIKE_USE_CASE.NOT_CONTAIN_NEEDED_ATTRIBUTE');
+    await expect(updateCommentLikeUseCase.execute(useCasePayload2)).rejects.toThrowError('UPDATE_COMMENT_LIKE_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 });
