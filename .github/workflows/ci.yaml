@@ -24,7 +24,7 @@ jobs:
       run: |
         npm install
         npm run migrate:test up
-        npm run test
+        npm run test:ci
       env:
         CI: true
         PGHOST_TEST: ${{ secrets.PGHOST_TEST }}
@@ -39,3 +39,8 @@ jobs:
         PGPORT: ${{ secrets.PGPORT_TEST }}
         ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
         REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
+  
+    - name: Generating coverage badges
+      uses: jpb06/jest-badges-action@latest
+        with:
+          branches: master

@@ -3,6 +3,13 @@
 ![CI Master](https://github.com/hakimamarullah/forum-api-garuda-game/actions/workflows/ci.yaml/badge.svg)
 ![CD Master](https://github.com/hakimamarullah/forum-api-garuda-game/actions/workflows/cd.yaml/badge.svg?branch=master)
 
+## Jest Coverage
+![Branches](./badges/coverage-branches.svg)
+![Functions](./badges/coverage-functions.svg)
+![Lines](./badges/coverage-lines.svg)
+![Statements](./badges/coverage-statements.svg)
+![Jest coverage](./badges/coverage-jest%20coverage.svg)
+
 
 ### How to run locally
 prerequisite: `nodejs v16.x`
